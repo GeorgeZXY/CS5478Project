@@ -88,7 +88,8 @@ def attach(object_id, robot_id, ee_link_index, threshould=0.2):
     if np.linalg.norm(np.array(obj_position) - np.array(ee_position)) > threshould:
         print("Object is too far from the gripper")
         return None
-    else:
+    else:        
+        set_orientation = p.getQuaternionFromEuler([np.pi/2.0, np.pi/2.0, 0])
         attached_constraint = p.createConstraint(
             parentBodyUniqueId=robot_id,
             parentLinkIndex=ee_link_index,
@@ -96,8 +97,10 @@ def attach(object_id, robot_id, ee_link_index, threshould=0.2):
             childLinkIndex=-1,
             jointType=p.JOINT_FIXED,
             jointAxis=[0, 0, 0],
-            parentFramePosition=[0, 0, 0],
+            parentFramePosition=[-0.08, 0, 0.07],
             childFramePosition=[0, 0, 0],
+            parentFrameOrientation=p.getQuaternionFromEuler([0, 0, 0]),
+            childFrameOrientation=set_orientation, 
         )
         print(f"Attached object id {object_id} with end-effector!")
 
@@ -107,6 +110,7 @@ def detach(attached_constraint):
     if attached_constraint:
         p.removeConstraint(attached_constraint)
         print("Detached object from the end-effector!")
+        return None
 
 def motion_planning_test(p, robot_id, target_position):
     current_ee_position, _, _ = get_robot_ee_pose(p, robot_id)

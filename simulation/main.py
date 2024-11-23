@@ -6,13 +6,75 @@ import os
 import pybullet as p
 from stretch import *
 from utils.tools import *
+from PickMug import *
 
 p.connect(p.GUI)
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
 p.setGravity(0, 0, -9.81)
 
 mobot = init_scene(p, mug_random=False)
+
+def display_points(points, labels=True, color=[1, 0, 0], line_width=3, text_size=1.0):
+    """
+    Displays specified points in the simulation environment with optional labels.
     
+    :param points: List of points (each as [x, y, z]) to display.
+    :param labels: Whether to add text labels for the points.
+    :param color: RGB color of the points or markers.
+    :param line_width: Line width for visualizing points.
+    :param text_size: Size of the text labels.
+    """
+    for i, point in enumerate(points):
+        # Draw a small cross at the point using lines
+        offset = 0.1  # Size of the cross
+        x, y, z = point
+        
+        # X-axis line
+        p.addUserDebugLine([x - offset, y, z], [x + offset, y, z], color, lineWidth=line_width)
+        # Y-axis line
+        p.addUserDebugLine([x, y - offset, z], [x, y + offset, z], color, lineWidth=line_width)
+        # Z-axis line
+        p.addUserDebugLine([x, y, z - offset], [x, y, z + offset], color, lineWidth=line_width)
+        
+        # Add text label if enabled
+        if labels:
+            p.addUserDebugText(f"Point {i+1}", [x, y, z], textColorRGB=color, textSize=text_size)
+
+points_to_display = [
+    [0.27, -0.71, 0.92],
+    [-1.70, -3.70, 0.46],
+    [1.45, -1.68, 0.59]
+]
+
+display_points(points_to_display)
+
+def display_local_axes(object_id, length=0.1):
+    """
+    Displays the local coordinate axes of an object.
+    :param object_id: The ID of the object to inspect.
+    :param length: The length of the axes to draw.
+    """
+    # Get the base position and orientation of the object
+    position, orientation = p.getBasePositionAndOrientation(object_id)
+    
+    # Convert orientation (quaternion) to rotation matrix
+    rotation_matrix = p.getMatrixFromQuaternion(orientation)
+    rotation_matrix = np.array(rotation_matrix).reshape(3, 3)
+    
+    # Local axes in object frame
+    local_axes = np.eye(3)  # Identity matrix for x, y, z axes
+    
+    # Global axes in world frame
+    global_axes = np.dot(rotation_matrix, local_axes.T).T
+    
+    # Draw axes
+    origin = np.array(position)
+    for axis, color in zip(global_axes, [[1, 0, 0], [0, 1, 0], [0, 0, 1]]):  # Red, Green, Blue for X, Y, Z
+        end = origin + length * axis
+        p.addUserDebugLine(origin, end, lineColorRGB=color, lineWidth=3)
+
+# display_local_axes(21)
+
 forward=0
 turn=0
 speed=10
@@ -32,6 +94,10 @@ constraint = None
 
 navi_flag = False
 grasp_flag = False
+first_time_reach = True
+reached_pick_position = False
+picked = False
+placed = False
 
 while (1):
     time.sleep(1./240.)
@@ -118,7 +184,7 @@ while (1):
     
     mobot.get_observation()
     
-    current_position, _, _ = get_robot_base_pose(p, mobot.robotId)
+    current_position, link_orientation, euler_orientation = get_robot_base_pose(p, mobot.robotId)
     total_driving_distance += np.linalg.norm(np.array(current_position) - np.array(previous_position))
     previous_position = current_position
 
@@ -130,7 +196,9 @@ while (1):
             print("Total driving distance: ", total_driving_distance)
             print("Current position: ", current_position)
     else:
-        print("Reached the goal region! Total driving distance: ", total_driving_distance)
+        if first_time_reach:
+            print("Reached the goal region! Total driving distance: ", total_driving_distance)
+            first_time_reach = False
     
     
     if grasp_flag == False:
@@ -146,4 +214,27 @@ while (1):
         print("Mug is in the drawer!")
 
     ee_position, _, _ = get_robot_ee_pose(p, mobot.robotId)
-    print("End-effector position: ", ee_position)
+    #print("End-effector position: ", ee_position)
+
+    if not reached_pick_position:        
+        reached_pick_position = navigate_base_to_pick_position(p, mobot, get_mug_pose(p))
+
+    if not picked:
+        constraint = pick_and_place_mug(p, mobot)
+        picked = True
+
+    if grasp_flag and not placed:        
+        constraint = detach(constraint)  
+        position, orientation = p.getBasePositionAndOrientation(21)
+        # Slightly lower the object's position to separate it from the end effector
+        new_position = [position[0] , position[1] , position[2]-0.02]
+        p.resetBasePositionAndOrientation(21, new_position, orientation)
+        p.stepSimulation()    
+        placed = True
+
+        for i in range(0,5):
+            arm_control(mobot, p, 1, 0, 0, 0)
+            mobot.get_observation()
+            p.stepSimulation()
+            time.sleep(0.1)
+        arm_control(mobot, p, 0, 0, 0, 0)

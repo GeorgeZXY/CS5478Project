@@ -12,6 +12,12 @@ sys.path.append('./')
 
 def init_scene(p, mug_random=False):
     root_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),"../")
+    p.resetDebugVisualizerCamera(
+        cameraDistance=3.0,             # Distance from the target
+        cameraYaw=0,                   # Align with the X-axis
+        cameraPitch=-90,               # Top-down view
+        cameraTargetPosition=[3.0, 0.0, 0.03]  # Focus point
+    )
 
     ################ Plane Environment
     plane_id = p.loadURDF(os.path.join(root_dir,"resource/urdf/plane.urdf"), [0, 0, 0])
@@ -20,7 +26,8 @@ def init_scene(p, mug_random=False):
 
     ################ Robot
     mobot_urdf_file = os.path.join(root_dir,"resource/urdf/stretch/stretch.urdf")
-    mobot = Robot(pybullet_api=p, start_pos=[-0.8,0.0,0.03], urdf_file=mobot_urdf_file)
+    # mobot = Robot(pybullet_api=p, start_pos=[-0.8,0.0,0.03], urdf_file=mobot_urdf_file)
+    mobot = Robot(pybullet_api=p, start_pos=[2.8,0.0,0.03], urdf_file=mobot_urdf_file)
 
     for _ in range(30):
         p.stepSimulation()
