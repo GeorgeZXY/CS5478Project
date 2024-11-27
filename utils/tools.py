@@ -88,8 +88,10 @@ def attach(object_id, robot_id, ee_link_index, threshould=0.2):
     if np.linalg.norm(np.array(obj_position) - np.array(ee_position)) > threshould:
         print("Object is too far from the gripper")
         return None
-    else:        
+    else:
+        obj_orientation = p.getBasePositionAndOrientation(object_id)[1]      
         set_orientation = p.getQuaternionFromEuler([np.pi/2.0, np.pi/2.0, 0])
+        mug_orientation = p.getQuaternionFromEuler([np.pi/2.0, 0, np.pi + np.pi/2.0 + np.random.uniform(-np.pi/4.0,np.pi/4.0)])
         attached_constraint = p.createConstraint(
             parentBodyUniqueId=robot_id,
             parentLinkIndex=ee_link_index,
@@ -97,7 +99,7 @@ def attach(object_id, robot_id, ee_link_index, threshould=0.2):
             childLinkIndex=-1,
             jointType=p.JOINT_FIXED,
             jointAxis=[0, 0, 0],
-            parentFramePosition=[-0.08, 0, 0.07],
+            parentFramePosition=[0.02, 0, 0.07],
             childFramePosition=[0, 0, 0],
             parentFrameOrientation=p.getQuaternionFromEuler([0, 0, 0]),
             childFrameOrientation=set_orientation, 

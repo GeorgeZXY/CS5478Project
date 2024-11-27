@@ -12,7 +12,7 @@ p.connect(p.GUI)
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
 p.setGravity(0, 0, -9.81)
 
-mobot = init_scene(p, mug_random=False)
+mobot = init_scene(p, mug_random=True)
 
 def display_points(points, labels=True, color=[1, 0, 0], line_width=3, text_size=1.0):
     """

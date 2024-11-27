@@ -13,7 +13,7 @@ def navigate_base_to_pick_position(p, robot, mug_position):
 
     current_position, _, current_orientation = get_robot_base_pose(p, robot.robotId)
     current_x, current_y = current_position[0], current_position[1]
-    target_x, target_y, target_h = mug_x+0.02, mug_y + 0.45, mug_z + 0.04
+    target_x, target_y, target_h = mug_x-0.08, 0.5, mug_z + 0.04
 
     # move arm up to avoid collision
     arm_position,_,_ = get_robot_ee_pose(p,robot.robotId)
@@ -152,7 +152,7 @@ def pick_and_place_mug(p, robot):
         # move to drawer
         current_position, _, current_orientation = get_robot_base_pose(p, robot.robotId)
         current_x = current_position[0]
-        target_x = current_x - 0.25
+        target_x = 3.36
 
         while(abs(target_x - current_x)>0.05):
             base_control(robot, p, forward= -0.5, turn=0)
@@ -173,7 +173,7 @@ def pick_and_place_mug(p, robot):
             _,_, mug_z = get_mug_pose(p)
         arm_control(robot, p, 0, 0, 0, 0)
         p.stepSimulation()
-        time.sleep(1)
+        time.sleep(0.1)
     
     return constraint
 

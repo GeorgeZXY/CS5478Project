@@ -27,7 +27,7 @@ def init_scene(p, mug_random=False):
     ################ Robot
     mobot_urdf_file = os.path.join(root_dir,"resource/urdf/stretch/stretch.urdf")
     # mobot = Robot(pybullet_api=p, start_pos=[-0.8,0.0,0.03], urdf_file=mobot_urdf_file)
-    mobot = Robot(pybullet_api=p, start_pos=[2.8,0.0,0.03], urdf_file=mobot_urdf_file)
+    mobot = Robot(pybullet_api=p, start_pos=[2.9,0.3,0.03], urdf_file=mobot_urdf_file)
 
     for _ in range(30):
         p.stepSimulation()
