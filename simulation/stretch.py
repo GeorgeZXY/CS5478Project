@@ -15,7 +15,7 @@ def init_scene(p, mug_random=False):
     p.resetDebugVisualizerCamera(
         cameraDistance=3.0,             # Distance from the target
         cameraYaw=0,                   # Align with the X-axis
-        cameraPitch=-90,               # Top-down view
+        cameraPitch=-60,               # Top-down view from an angle
         cameraTargetPosition=[3.5, 1.0, 0.03]  # Focus point
     )
 
