@@ -106,8 +106,8 @@ def move_to_target_x(p, robot, target_x, tolerance=0.1):
         p.stepSimulation()
     base_control(robot, p, forward=0, turn=0)
 
-def pick_and_place_mug(p, robot):
-    mug_x, mug_y, mug_z = get_mug_pose(p)
+def pick_and_place_mug(p, robot, mug_position):
+    mug_x, mug_y, mug_z = mug_position
     arm_position,_,_ = get_robot_ee_pose(p,robot.robotId)    
     target_y, target_h = mug_y, mug_z+0.05
 
@@ -174,6 +174,7 @@ def pick_and_place_mug(p, robot):
         arm_control(robot, p, 0, 0, 0, 0)
         p.stepSimulation()
         time.sleep(0.1)
+    
     
     return constraint
 

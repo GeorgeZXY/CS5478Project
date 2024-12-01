@@ -220,7 +220,7 @@ while (1):
         reached_pick_position = navigate_base_to_pick_position(p, mobot, get_mug_pose(p))
 
     if not picked:
-        constraint = pick_and_place_mug(p, mobot)
+        constraint = pick_and_place_mug(p, mobot, get_mug_pose(p))
         picked = True
 
     if grasp_flag and not placed:        

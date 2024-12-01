@@ -16,7 +16,7 @@ def init_scene(p, mug_random=False):
         cameraDistance=3.0,             # Distance from the target
         cameraYaw=0,                   # Align with the X-axis
         cameraPitch=-90,               # Top-down view
-        cameraTargetPosition=[3.0, 0.0, 0.03]  # Focus point
+        cameraTargetPosition=[3.5, 1.0, 0.03]  # Focus point
     )
 
     ################ Plane Environment
@@ -352,7 +352,6 @@ def init_scene(p, mug_random=False):
         p.stepSimulation()
 
     return mobot
-
 
 def get_global_action_from_local(robot, delta_forward):
     # Get the current joint angle of joint 2 (rotation around z-axis)
