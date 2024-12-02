@@ -18,7 +18,7 @@ def navigate_base_to_pick_position(p, robot, mug_position):
     # move arm up to avoid collision
     arm_position,_,_ = get_robot_ee_pose(p,robot.robotId)
     arm_h = arm_position[2] 
-    print(arm_position)   
+    #print(arm_position)   
     
     while(arm_h<1.1):
         #up_direction = 1 if target_h-arm_h > 0 else -1     
@@ -47,8 +47,6 @@ def navigate_base_to_pick_position(p, robot, mug_position):
         current_position, _, _ = get_robot_base_pose(p, robot.robotId)
         current_y = current_position[1]
     base_control(robot, p, forward=0, turn=0)
-    print("move to target y")
-    print(current_position)
 
     # turn to face X direction
     target_yaw_x = 0 if target_x > current_x else math.pi
@@ -67,7 +65,7 @@ def navigate_base_to_pick_position(p, robot, mug_position):
         current_x = current_position[0]
     base_control(robot, p, forward=0, turn=0)
 
-    print("Reached target position:", current_position)
+    print("Reached picking position:", current_position)
     return True
 
 def turn_to_direction(p, robot, target_yaw, tolerance=0.05, turning_speed=0.5):    
@@ -176,7 +174,6 @@ def pick_and_place_mug(p, robot, mug_position):
         arm_control(robot, p, 0, 0, 0, 0)
         p.stepSimulation()
         time.sleep(0.1)
-    
-    
+        
     return constraint
 

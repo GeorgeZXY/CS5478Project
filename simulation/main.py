@@ -6,7 +6,7 @@ import os
 import pybullet as p
 from stretch import *
 from utils.tools import *
-from PickMug import *
+from pickMug import *
 
 p.connect(p.GUI)
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
