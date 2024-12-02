@@ -14,6 +14,9 @@ class RobotController:
         self.timestep = 0.01  # set duration of each step
         self.distance_controller = PIDController(0.01, 0.0, 0.0, 0.0)  # initialize PID controller
         #self.mobot = mobot
+        self.total_driving_distance = 0
+        self.previous_location, _, _ = get_robot_base_pose(p, mobot.robotId)
+        self.current_location = self.previous_location
 
     def sim_get_current_base_pose(self):
         base_position, base_orientation = p.getBasePositionAndOrientation(self.robotId)
@@ -104,6 +107,10 @@ class RobotController:
                 self.run()
 
             cnt += 1
+
+            self.current_position, _, _ = get_robot_base_pose(p, self.robotId)
+            self.total_driving_distance += np.linalg.norm(np.array(self.current_location) - np.array(self.previous_location))
+            self.previous_location= self.current_location
 
         self.run()
 
