@@ -7,6 +7,11 @@ import pybullet as p
 from stretch import *
 from utils.tools import *
 from pickMug import *
+from motionPlanningTests import *
+from nav.map import *
+from nav.A_star import *
+from nav.move_robot import *
+from scipy.spatial.transform import Rotation as R
 
 p.connect(p.GUI)
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
@@ -15,66 +20,9 @@ p.setGravity(0, 0, -9.81)
 #true represent place a cup randomly
 mobot = init_scene(p, mug_random=True)
 
-def display_points(points, labels=True, color=[1, 0, 0], line_width=3, text_size=1.0):
-    """
-    Displays specified points in the simulation environment with optional labels.
-    
-    :param points: List of points (each as [x, y, z]) to display.
-    :param labels: Whether to add text labels for the points.
-    :param color: RGB color of the points or markers.
-    :param line_width: Line width for visualizing points.
-    :param text_size: Size of the text labels.
-    """
-    for i, point in enumerate(points):
-        # Draw a small cross at the point using lines
-        offset = 0.1  # Size of the cross
-        x, y, z = point
-        
-        # X-axis line
-        p.addUserDebugLine([x - offset, y, z], [x + offset, y, z], color, lineWidth=line_width)
-        # Y-axis line
-        p.addUserDebugLine([x, y - offset, z], [x, y + offset, z], color, lineWidth=line_width)
-        # Z-axis line
-        p.addUserDebugLine([x, y, z - offset], [x, y, z + offset], color, lineWidth=line_width)
-        
-        # Add text label if enabled
-        if labels:
-            p.addUserDebugText(f"Point {i+1}", [x, y, z], textColorRGB=color, textSize=text_size)
-
-points_to_display = [
-    [0.27, -0.71, 0.92],
-    [-1.70, -3.70, 0.46],
-    [1.45, -1.68, 0.59]
-]
-
-#display_points(points_to_display)
-
-def display_local_axes(object_id, length=0.1):
-    """
-    Displays the local coordinate axes of an object.
-    :param object_id: The ID of the object to inspect.
-    :param length: The length of the axes to draw.
-    """
-    # Get the base position and orientation of the object
-    position, orientation = p.getBasePositionAndOrientation(object_id)
-    
-    # Convert orientation (quaternion) to rotation matrix
-    rotation_matrix = p.getMatrixFromQuaternion(orientation)
-    rotation_matrix = np.array(rotation_matrix).reshape(3, 3)
-    
-    # Local axes in object frame
-    local_axes = np.eye(3)  # Identity matrix for x, y, z axes
-    
-    # Global axes in world frame
-    global_axes = np.dot(rotation_matrix, local_axes.T).T
-    
-    # Draw axes
-    origin = np.array(position)
-    for axis, color in zip(global_axes, [[1, 0, 0], [0, 1, 0], [0, 0, 1]]):  # Red, Green, Blue for X, Y, Z
-        end = origin + length * axis
-        p.addUserDebugLine(origin, end, lineColorRGB=color, lineWidth=3)
-
-# display_local_axes(21)
+#true to run motion planning test of target points
+# [0.27, -0.71, 0.92], [-1.70, -3.70, 0.46], [1.45, -1.68, 0.59]
+motionTest = True
 
 forward=0
 turn=0
@@ -87,16 +35,20 @@ yaw=0
 
 mobot.get_observation()
 
-#########################
-############start##########
-#########################
+total_driving_distance = 0
+previous_position, _, _ = get_robot_base_pose(p, mobot.robotId)
+current_position = previous_position
 
-from nav.map import *
-from nav.A_star import *
-from nav.move_robot import *
-from scipy.spatial.transform import Rotation as R
+constraint = None
 
+navi_flag = False
+grasp_flag = False
+first_time_reach = True
+reached_pick_position = False
+picked = False
+placed = False
 
+#### Navigation start ####
 nav_map = get_navigation_map(mobot, True)
 
 beg_pos, base_ori = p.getBasePositionAndOrientation(mobot.robotId)
@@ -106,82 +58,101 @@ print("Initial position: ", beg_pos)
 print("Initial orientation: ", base_ori) # Quaternion
 beg_ori = list(base_ori)
 
-beg_pose = ([beg_x, beg_y, beg_z], [beg_ori[0], beg_ori[1], beg_ori[2], beg_ori[3]])
-base_pose1 = [[beg_x, beg_y, beg_z],
-              [base_ori_eula[0], base_ori_eula[1], base_ori_eula[2]]]
+if not motionTest:
+    #beg_pose = ([beg_x, beg_y, beg_z], [beg_ori[0], beg_ori[1], beg_ori[2], beg_ori[3]])
+    base_pose1 = [[beg_x, beg_y, beg_z],
+                [base_ori_eula[0], base_ori_eula[1], base_ori_eula[2]]]
 
-mid_point = [1.785,-2.8,0]
-mid_pose = [[1.785,-2.8,0], [0, 0, math.pi/2]]
+    mid_point = [1.785,-2.8,0]
+    mid_pose = [[1.785,-2.8,0], [0, 0, math.pi/2]]
 
-goal_pose = [[2.85, 0.1, 0], [0, 0, math.pi/2]]
-goal_pos = [2.85, 0.1, 0]
+    goal_pose = [[2.85, 0.1, 0], [0, 0, math.pi/2]]
+    goal_pos = [2.85, 0.1, 0]
 
+    robot_size = 0.5 #sim_get_robot_size(mobot) 0.5
+    nav_planner = AStarPlanner(
+        robot_size=robot_size,
+        obstacles_bounds=nav_map,
+        resolution=0.05,
+        enable_plot=True
+    )
 
+    path = nav_planner.plan(
+        start_pos=beg_pos, goal_pos=mid_point
+    )
+    print("Path: ", path)
 
-robot_size = 0.5 #sim_get_robot_size(mobot) 0.5
-nav_planner = AStarPlanner(
-    robot_size=robot_size,
-    obstacles_bounds=nav_map,
-    resolution=0.05,
-    enable_plot=True
-)
+    controller = RobotController(mobot, base_pose1, False)
+    controller.sim_navigate_base(mid_pose, path)
+    total_driving_distance += controller.total_driving_distance
 
+    # Raise arm to avoid collision
+    timestep = 0.01
+    p.setJointMotorControl2(mobot.robotId,8,p.POSITION_CONTROL,targetPosition=0.65,force=100)
+    for _ in range(1):
+        p.stepSimulation()
+        time.sleep(timestep)
 
+    robot_size = 0.2
+    nav_planner = AStarPlanner(
+        robot_size=robot_size,
+        obstacles_bounds=nav_map,
+        resolution=0.05,
+        enable_plot=True
+    )
 
-path = nav_planner.plan(
-    start_pos=beg_pos, goal_pos=mid_point
-)
+    path1 = nav_planner.plan(
+        start_pos=mid_point, goal_pos=goal_pos
+    )
+    print("Path1: ", path1)
 
-print("Path: ", path)
+    controller = RobotController(mobot, mid_pose , True)
+    controller.sim_navigate_base(goal_pose, path1)
+    total_driving_distance += controller.total_driving_distance
+else:
+    points_to_display = [
+        [0.27, -0.71, 0.92],
+        [-1.70, -3.70, 0.46],
+        [1.45, -1.68, 0.59],
+    ]
+    display_points(points_to_display)
+    
+    #move_To_Target1(mobot, nav_map)
+    #move_To_Target2(mobot, nav_map)
+    move_To_Target3(mobot, nav_map)
 
-controller = RobotController(mobot, base_pose1, False)
-controller.sim_navigate_base(mid_pose, path)
+    # adjust arm height
+    timestep = 0.01
+    p.setJointMotorControl2(mobot.robotId,8,p.POSITION_CONTROL,targetPosition=0.65,force=100)
+    for _ in range(1):
+        p.stepSimulation()
+        time.sleep(timestep)  
 
-#======
+    beg_pos, base_ori = p.getBasePositionAndOrientation(mobot.robotId)
+    base_ori_eula = R.from_quat(base_ori).as_euler("xyz", degrees=False)
+    base_start_pos = [[beg_x, beg_y, beg_z],
+                [base_ori_eula[0], base_ori_eula[1], base_ori_eula[2]]] 
 
-# Raise arm to avoid collision
-timestep = 0.01
-p.setJointMotorControl2(mobot.robotId,8,p.POSITION_CONTROL,targetPosition=0.65,force=100)
-for _ in range(1):
-    p.stepSimulation()
-    time.sleep(timestep)
+    goal_pose = [[2.85, 0.1, 0], [0, 0, math.pi/2]]
+    goal_pos = [2.85, 0.1, 0]
 
-robot_size = 0.2 
-nav_planner = AStarPlanner(
-    robot_size=robot_size,
-    obstacles_bounds=nav_map,
-    resolution=0.05,
-    enable_plot=True
-)
+    robot_size = 0.25
+    nav_planner = AStarPlanner(
+        robot_size=robot_size,
+        obstacles_bounds=nav_map,
+        resolution=0.05,
+        enable_plot=False
+    )
 
-path1 = nav_planner.plan(
-    start_pos=mid_point, goal_pos=goal_pos
-)
+    path1 = nav_planner.plan(
+        start_pos=beg_pos, goal_pos=goal_pos
+    )
+    print("Path1: ", path1)
 
-print("Path1: ", path1)
+    controller = RobotController(mobot, base_start_pos , True)
+    controller.sim_navigate_base(goal_pose, path1)
 
-controller = RobotController(mobot, mid_pose , True)
-controller.sim_navigate_base(goal_pose, path1)
-
-#########################
-############end##########
-#########################
-
-total_driving_distance = 0
-previous_position, _, _ = get_robot_base_pose(p, mobot.robotId)
-current_position = previous_position
-
-constraint = None
-
-navi_flag = False
-grasp_flag = False
-
-####？？？
-first_time_reach = True
-reached_pick_position = False
-picked = False
-placed = False
-####？？？？
+#### Navigation end ####
 
 while (1):
     time.sleep(1./240.)
@@ -267,9 +238,7 @@ while (1):
         constraint = None
     
     mobot.get_observation()
-    
-    
-    ###link_orientation, euler_orientation和__
+
     current_position, link_orientation, euler_orientation = get_robot_base_pose(p, mobot.robotId)
     total_driving_distance += np.linalg.norm(np.array(current_position) - np.array(previous_position))
     previous_position = current_position
@@ -302,8 +271,9 @@ while (1):
         print("Mug is in the drawer!")
 
     ee_position, _, _ = get_robot_ee_pose(p, mobot.robotId)
-    #print("End-effector position: ", ee_position)
+    # print("End-effector position: ", ee_position)
 
+    #### picking mug #####
     if not reached_pick_position:        
         reached_pick_position = navigate_base_to_pick_position(p, mobot, get_mug_pose(p))
         print("reached pick position")
@@ -311,7 +281,9 @@ while (1):
     if not picked:
         constraint = pick_and_place_mug(p, mobot, get_mug_pose(p))
         picked = True
-
+    #### picking end ####
+    
+    #### placing mug ####
     if grasp_flag and not placed:        
         constraint = detach(constraint)  
         position, orientation = p.getBasePositionAndOrientation(21)
@@ -327,3 +299,4 @@ while (1):
             p.stepSimulation()
             time.sleep(0.1)
         arm_control(mobot, p, 0, 0, 0, 0)
+    #### placing end ####
