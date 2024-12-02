@@ -47,6 +47,8 @@ def navigate_base_to_pick_position(p, robot, mug_position):
         current_position, _, _ = get_robot_base_pose(p, robot.robotId)
         current_y = current_position[1]
     base_control(robot, p, forward=0, turn=0)
+    print("move to target y")
+    print(current_position)
 
     # turn to face X direction
     target_yaw_x = 0 if target_x > current_x else math.pi
