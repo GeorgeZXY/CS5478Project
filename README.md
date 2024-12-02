@@ -7,8 +7,8 @@ Wang Wenzhao A0276544W, Wei Xiaochen, Zhou Xiangyu A0291289N
 
 The initial files are cloned from this repo `https://github.com/NUS-LinS-Lab/Mobile-Manipulation` as provided by the course.
 
-Deliverables:
-Following videos are included in the main branch
+Deliverables:<br/>
+NavigationAndPickMug.mp4 - video of the entire workflow. the robot first navigates from start position to goal position then picks the mug and place it in the open drawer. <br/>
 
 File structures:
 
