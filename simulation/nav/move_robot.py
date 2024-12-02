@@ -11,8 +11,9 @@ class RobotController:
         self.start_pose = start_pose
         self.current_base_yaw = self.start_pose[1][2]
         self.isReverse = isReverse
-        self.timestep = 0.01  # 控制步长
-        self.distance_controller = PIDController(0.01, 0.0, 0.0, 0.0)  # 简化PID控制器
+        self.timestep = 0.01  # set duration of each step
+        self.distance_controller = PIDController(0.01, 0.0, 0.0, 0.0)  # initialize PID controller
+        #self.mobot = mobot
 
     def sim_get_current_base_pose(self):
         base_position, base_orientation = p.getBasePositionAndOrientation(self.robotId)
@@ -22,6 +23,7 @@ class RobotController:
 
     def run(self, steps=1):
         for _ in range(steps):
+            #self.mobot.get_observation()
             p.stepSimulation()
             time.sleep(self.timestep)
 
@@ -108,6 +110,7 @@ class RobotController:
     def sim_navigate_base(self, goal_base_pose, path, threshold=0.05):
         for i in range(len(path)):
             waypoint = [path[i][0], path[i][1], 0]
+            print ("Moving to waypoint ", waypoint)
         # for waypoint in path:
             self.sim_move_base_to_waypoint(([waypoint[0], waypoint[1], 0], 
                                                  goal_base_pose[1]))
@@ -128,7 +131,7 @@ class RobotController:
             np.array(goal_pose[0]))
         return distance
 
-
+# a simplified PID controller
 class PIDController:
     def __init__(self, Kp, Ki, Kd, setpoint):
         self.Kp = Kp

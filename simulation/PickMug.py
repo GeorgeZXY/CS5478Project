@@ -13,7 +13,7 @@ def navigate_base_to_pick_position(p, robot, mug_position):
 
     current_position, _, current_orientation = get_robot_base_pose(p, robot.robotId)
     current_x, current_y = current_position[0], current_position[1]
-    target_x, target_y, target_h = mug_x-0.08, 0.5, mug_z + 0.04
+    target_x, target_y, target_h = mug_x-0.06, 0.5, mug_z + 0.04
 
     # move arm up to avoid collision
     arm_position,_,_ = get_robot_ee_pose(p,robot.robotId)
