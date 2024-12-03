@@ -46,7 +46,7 @@ points_to_display = [
     [1.45, -1.68, 0.59]
 ]
 
-display_points(points_to_display)
+#display_points(points_to_display)
 
 def display_local_axes(object_id, length=0.1):
     """
