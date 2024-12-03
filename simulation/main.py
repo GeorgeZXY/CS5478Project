@@ -22,7 +22,7 @@ mobot = init_scene(p, mug_random=True)
 
 #true to run motion planning test of target points
 # [0.27, -0.71, 0.92], [-1.70, -3.70, 0.46], [1.45, -1.68, 0.59]
-motionTest = True
+motionTest = False
 
 forward=0
 turn=0
@@ -117,8 +117,8 @@ else:
     ]
     display_points(points_to_display)
     
-    #move_To_Target1(mobot, nav_map)
-    #move_To_Target2(mobot, nav_map)
+    move_To_Target1(mobot, nav_map)
+    move_To_Target2(mobot, nav_map)
     move_To_Target3(mobot, nav_map)
 
     # adjust arm height
