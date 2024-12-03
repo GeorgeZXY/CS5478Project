@@ -12,7 +12,7 @@ NavigationAndPickMug.mp4 - video of the entire workflow. the robot first navigat
 MotionPlanningTests.mp4 - video showing the robot reach the 3 points for motion planning test.<br/>
 PickAndPlaceMug.mpr - video of 3 successful pick and place operations. the navigation part is neglected in this video. <br/>
 CS5478Report.pdf - final report of the project.<br/>
-Videos are also available for viewing at `https://drive.google.com/drive/folders/1BTEPZ8hFLefzQSI_LjKZaurF8oTKmUQq?usp=sharing` (download for better quality)<br/>
+Videos are also available for viewing at https://drive.google.com/drive/folders/1BTEPZ8hFLefzQSI_LjKZaurF8oTKmUQq?usp=sharing (download for better quality)<br/>
 
 File structures:<br/>
 /simulation/main.py - main program to run the simulation. to run motion planning tests, set motionTest = True at line 25<br />
@@ -21,6 +21,6 @@ File structures:<br/>
 /simulation/nav/move_robot.py - motion control algorithm for driving the robot <br />
 /simulation/motionPlanningTests.py - algorithm for performing the motion planning tests <br />
 /simulation/pickMug.py - control functions related to the picking and placing mug task <br />
-The initial files are cloned from source repo `https://github.com/NUS-LinS-Lab/Mobile-Manipulation` as provided by the course.
+The initial files are cloned from source repo https://github.com/NUS-LinS-Lab/Mobile-Manipulation as provided by the course.
 
 Main branch contains everything of the solution. Other branches are used for developing part of the tasks or recording the videos
