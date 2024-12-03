@@ -13,7 +13,7 @@ MotionPlanningTests.mp4 - video showing the robot reach the 3 points for motion 
 PickAndPlaceMug.mpr - video of 3 successful pick and place operations. the navigation part is neglected in this video<br/>
 CS5478Report.pdf - final report of the project.<br/>
 
-File structures:
+File structures:<br/>
 /simulation/main.py - main program to run the simulation. to run motion planning tests, set motionTest = True at line 25<br />
 /simulation/nav/A_star.py - A* algorithm for path planning <br />
 /simulation/nav/map.py - map of the environment with obstacles <br /> 
