@@ -12,7 +12,7 @@ NavigationAndPickMug.mp4 - video of the entire workflow. the robot first navigat
 MotionPlanningTests.mp4 - video showing the robot reach the 3 points for motion planning test.<br/>
 PickAndPlaceMug.mpr - video of 3 successful pick and place operations. the navigation part is neglected in this video. <br/>
 CS5478Report.pdf - final report of the project.<br/>
-Videos are also available for viewing at https://drive.google.com/drive/folders/1BTEPZ8hFLefzQSI_LjKZaurF8oTKmUQq?usp=sharing (download for better quality)<br/>
+Above files are also available for viewing at https://drive.google.com/drive/folders/1BTEPZ8hFLefzQSI_LjKZaurF8oTKmUQq?usp=sharing (download for better quality)<br/>
 
 File structures:<br/>
 /simulation/main.py - main program to run the simulation. to run motion planning tests, set motionTest = True at line 25<br />
