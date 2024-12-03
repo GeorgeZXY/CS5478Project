@@ -1,7 +1,7 @@
 # Default-Course-Project
 Default Course Project of NUS CS4278/CS5478 Intelligent Robots: Algorithms and Systems. This repo is the solution to the cousrework project in AY 24/25 Semester 1.
 
-Carried out by a group of 3 students:
+The project is carried out by a group of 3 students:
 
 Wang Wenzhao A0276544W, Wei Xiaochen A0279556J, Zhou Xiangyu A0291289N
 
