@@ -11,6 +11,7 @@ Deliverables:<br/>
 NavigationAndPickMug.mp4 - video of the entire workflow. the robot first navigates from start position to goal position then picks the mug and place it in the open drawer. <br/>
 MotionPlanningTests.mp4 - video showing the robot reach the 3 points for motion planning test.<br/>
 PickAndPlaceMug.mp4 - video of 3 successful pick and place operations. the navigation part is neglected in this video. <br/>
+Navigation2.mp4 - video to show more successful navigation to prove robustness. <br/>
 CS5478Report.pdf - final report of the project.<br/>
 Above files are also available for viewing at https://drive.google.com/drive/folders/1BTEPZ8hFLefzQSI_LjKZaurF8oTKmUQq?usp=sharing (download for better quality)<br/>
 
